@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Escala</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F4F5F7;
+    --surface: #FFFFFF;
+    --surface2: #F0F1F3;
+    --border: #E2E4E9;
+    --border2: #CDD0D8;
+    --text: #111318;
+    --text2: #5A5F6E;
+    --text3: #9AA0B0;
+    --today: #1B4DFF;
+    --hol: #F59E0B;
+    --hol-bg: #FFFBEB;
+    --hol-border: #FCD34D;
+    --wknd-bg: #F8F9FB;
+    --t1-a: #EFF6FF; --t1-a-dot: #2563EB; --t1-a-text: #1E3A8A;
+    --t1-b: #FFF7ED; --t1-b-dot: #EA580C; --t1-b-text: #7C2D12;
+    --t1-c: #F0FDF4; --t1-c-dot: #16A34A; --t1-c-text: #14532D;
+    --t1-d: #FDF4FF; --t1-d-dot: #9333EA; --t1-d-text: #581C87;
+    --t2-a: #EEF2FF; --t2-a-dot: #4F46E5; --t2-a-text: #312E81;
+    --t2-b: #ECFDF5; --t2-b-dot: #059669; --t2-b-text: #064E3B;
+    --t2-c: #FFFBEB; --t2-c-dot: #D97706; --t2-c-text: #78350F;
+    --t2-d: #FFF1F2; --t2-d-dot: #E11D48; --t2-d-text: #881337;
+    --t2-e: #F0F9FF; --t2-e-dot: #0284C7; --t2-e-text: #0C4A6E;
+    --t3-a: #F8FAFC; --t3-a-dot: #475569; --t3-a-text: #0F172A;
+    --t3-b: #F0FDF4; --t3-b-dot: #15803D; --t3-b-text: #14532D;
+    --t3-c: #FFF0F6; --t3-c-dot: #DB2777; --t3-c-text: #831843;
+    --t3-d: #FFF7F0; --t3-d-dot: #C2410C; --t3-d-text: #7C2D12;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .page-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .page-sub {
+    font-size: 13px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+
+  .refresh-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .refresh-btn:hover { background: var(--surface2); border-color: var(--border2); }
+  .refresh-btn svg { width: 14px; height: 14px; }
+
+  .filters-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+
+  .f-group label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: .7px;
+    margin-bottom: 6px;
+  }
+
+  .f-group select,
+  .f-group input {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s;
+  }
+  .f-group select:focus,
+  .f-group input:focus { border-color: var(--today); }
+
+  .cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .cal-month {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    color: var(--text);
+  }
+
+  .nav-group { display: flex; gap: 6px; }
+
+  .nav-btn {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 16px;
+    transition: all .15s;
+  }
+  .nav-btn:hover { background: var(--surface2); border-color: var(--border2); }
+
+  .weekday-hdr {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    margin-bottom: 3px;
+  }
+
+  .wh {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    padding: 6px 0;
+  }
+  .wh.we { color: #CBD5E1; }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+  }
+
+  .dcell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 7px 8px;
+    min-height: 100px;
+    transition: border-color .15s;
+  }
+  .dcell:hover { border-color: var(--border2); }
+  .dcell.wknd { background: var(--wknd-bg); }
+  .dcell.feriado { border-color: var(--hol-border); background: var(--hol-bg); }
+  .dcell.other { opacity: .3; background: var(--surface2); pointer-events: none; }
+
+  .hol-tag {
+    display: block;
+    font-size: 9px;
+    font-weight: 600;
+    background: #FEF3C7;
+    color: #92400E;
+    border-radius: 3px;
+    padding: 2px 5px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dnum {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 5px;
+    border-radius: 50%;
+  }
+  .dcell.wknd .dnum { color: var(--text3); }
+  .dcell.today-cell .dnum {
+    background: var(--today);
+    color: #fff;
+  }
+
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 500;
+    border-radius: 4px;
+    padding: 2px 5px;
+    margin-bottom: 2px;
+    line-height: 1.4;
+  }
+  .chip-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .chip-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip-turno { font-size: 9px; opacity: .6; flex-shrink: 0; font-family: 'DM Mono', monospace; }
+
+  .chip.t1a { background: var(--t1-a); color: var(--t1-a-text); }
+  .chip.t1a .chip-dot { background: var(--t1-a-dot); }
+  .chip.t1b { background: var(--t1-b); color: var(--t1-b-text); }
+  .chip.t1b .chip-dot { background: var(--t1-b-dot); }
+  .chip.t1c { background: var(--t1-c); color: var(--t1-c-text); }
+  .chip.t1c .chip-dot { background: var(--t1-c-dot); }
+  .chip.t1d { background: var(--t1-d); color: var(--t1-d-text); }
+  .chip.t1d .chip-dot { background: var(--t1-d-dot); }
+  .chip.t2a { background: var(--t2-a); color: var(--t2-a-text); }
+  .chip.t2a .chip-dot { background: var(--t2-a-dot); }
+  .chip.t2b { background: var(--t2-b); color: var(--t2-b-text); }
+  .chip.t2b .chip-dot { background: var(--t2-b-dot); }
+  .chip.t2c { background: var(--t2-c); color: var(--t2-c-text); }
+  .chip.t2c .chip-dot { background: var(--t2-c-dot); }
+  .chip.t2d { background: var(--t2-d); color: var(--t2-d-text); }
+  .chip.t2d .chip-dot { background: var(--t2-d-dot); }
+  .chip.t2e { background: var(--t2-e); color: var(--t2-e-text); }
+  .chip.t2e .chip-dot { background: var(--t2-e-dot); }
+  .chip.t3a { background: var(--t3-a); color: var(--t3-a-text); }
+  .chip.t3a .chip-dot { background: var(--t3-a-dot); }
+  .chip.t3b { background: var(--t3-b); color: var(--t3-b-text); }
+  .chip.t3b .chip-dot { background: var(--t3-b-dot); }
+  .chip.t3c { background: var(--t3-c); color: var(--t3-c-text); }
+  .chip.t3c .chip-dot { background: var(--t3-c-dot); }
+  .chip.t3d { background: var(--t3-d); color: var(--t3-d-text); }
+  .chip.t3d .chip-dot { background: var(--t3-d-dot); }
+
+  .no-data { color: var(--text3); font-size: 10px; padding: 2px 0; }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+  }
+  .stat-name { font-size: 11px; color: var(--text2); font-weight: 500; margin-bottom: 2px; }
+  .stat-turno { font-size: 9px; color: var(--text3); font-family: 'DM Mono', monospace; }
+  .stat-val { font-size: 22px; font-weight: 600; color: var(--text); margin: 4px 0 2px; }
+  .stat-sub { font-size: 10px; color: var(--text3); }
+
+  .loading-overlay {
+    position: fixed; inset: 0;
+    background: rgba(244,245,247,.85);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 12px;
+    z-index: 100;
+    backdrop-filter: blur(2px);
+  }
+  .loading-overlay.hidden { display: none; }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--today);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 13px; color: var(--text2); }
+
+  .error-banner {
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #991B1B;
+    margin-bottom: 14px;
+    display: none;
+  }
+  .error-banner.show { display: block; }
+
+  .legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .leg-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text2);
+  }
+  .leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .last-update {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+    text-align: right;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">Carregando escala...</div>
+</div>
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Painel de Escala</div>
+    <div class="page-sub" id="page-sub">Carregando dados...</div>
+  </div>
+  <button class="refresh-btn" onclick="loadData()">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M13.5 8A5.5 5.5 0 1 1 8 2.5c1.8 0 3.4.87 4.4 2.2M13.5 2v2.7H10.8"/>
+    </svg>
+    Atualizar
+  </button>
+</div>
+
+<div class="error-banner" id="error-banner"></div>
+
+<div class="filters-bar">
+  <div class="f-group">
+    <label>Turno</label>
+    <select id="f-turno" onchange="applyFilters()">
+      <option value="">Todos os turnos</option>
+      <option value="T1">T1</option>
+      <option value="T2">T2</option>
+      <option value="T3">T3</option>
+    </select>
+  </div>
+  <div class="f-group">
+    <label>Pessoa</label>
+    <select id="f-nome" onchange="applyFilters()">
+      <option value="">Todas as pessoas</option>
+    </select>
+  </div>
+  <div class="f-group">
+    <label>Período</label>
+    <select id="f-mes" onchange="goToMonth()"></select>
+  </div>
+</div>
+
+<div class="cal-nav">
+  <div class="cal-month" id="cal-month"></div>
+  <div class="nav-group">
+    <button class="nav-btn" onclick="prevMonth()">&#8592;</button>
+    <button class="nav-btn" onclick="nextMonth()">&#8594;</button>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:#2563EB"></div>T1</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#4F46E5"></div>T2</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#475569"></div>T3</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#F59E0B"></div>Feriado</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#CBD5E1"></div>Fim de semana</div>
+</div>
+
+<div class="weekday-hdr">
+  <div class="wh we">Dom</div>
+  <div class="wh">Seg</div>
+  <div class="wh">Ter</div>
+  <div class="wh">Qua</div>
+  <div class="wh">Qui</div>
+  <div class="wh">Sex</div>
+  <div class="wh we">Sáb</div>
+</div>
+
+<div class="cal-grid" id="cal-grid"></div>
+<div class="stats-row" id="stats-row"></div>
+<div class="last-update" id="last-update"></div>
+
+<script>
+const API_URL = "https://script.google.com/a/macros/mercadolivre.com/s/AKfycbz_s2WqLd7is4R1t3CRKNW_4Qb3BDN0x4lYXyHJV0Lu9JplKVcIPxScWXh0EnuTugfP/exec";
+
+const DOW = ["Domingo","Segunda-feira","Terça-feira","Quarta-feira","Quinta-feira","Sexta-feira","Sábado"];
+const WKND = new Set(["Sábado","Domingo"]);
+
+// Cores por pessoa (ordem de aparição, cicla entre paletas)
+const CHIP_PALETTES = [
+  "t1a","t1b","t1c","t1d",
+  "t2a","t2b","t2c","t2d","t2e",
+  "t3a","t3b","t3c","t3d"
+];
+
+let allData = [];       // linhas brutas da planilha
+let people = [];        // [{name, turno, cls}]
+let monthsList = [];    // [{month, year}]
+let curIdx = 0;
+let filtTurno = "", filtNome = "";
+
+// ── Detecta data de hoje no formato DD/MM/YYYY ────────────────────────────────
+function todayStr() {
+  const d = new Date();
+  return String(d.getDate()).padStart(2,"0") + "/" +
+         String(d.getMonth()+1).padStart(2,"0") + "/" +
+         d.getFullYear();
+}
+
+// ── Carrega dados via JSONP (contorna CORS em arquivos locais) ──────────────
+function loadData() {
+  showLoading(true);
+  hideError();
+
+  const old = document.getElementById("jsonp-script");
+  if (old) old.remove();
+
+  window._jsonpTimeout = setTimeout(() => {
+    showLoading(false);
+    showError("Tempo esgotado. Verifique se o Apps Script foi reimplantado com acesso Qualquer pessoa.");
+  }, 15000);
+
+  window.cb = function(json) {
+    clearTimeout(window._jsonpTimeout);
+    showLoading(false);
+    try {
+      processData(json);
+      document.getElementById("last-update").textContent =
+        "Última atualização: " + new Date().toLocaleString("pt-BR");
+    } catch(e) {
+      showError("Erro ao processar dados: " + e.message);
+    }
+  };
+
+  const script = document.createElement("script");
+  script.id = "jsonp-script";
+  script.src = API_URL + "?callback=cb";
+  script.onerror = () => {
+    clearTimeout(window._jsonpTimeout);
+    showLoading(false);
+    showError("Erro ao carregar. Verifique a URL e o Apps Script reimplantado.");
+  };
+  document.body.appendChild(script);
+}
+
+// ── Processa dados vindos da API ──────────────────────────────────────────────
+function processData(rows) {
+  if (!rows || (!rows.headers && !rows.length)) { showError("A API retornou dados vazios."); return; }
+  // Suporte ao formato antigo (array de objetos)
+  if (Array.isArray(rows)) { showError("Formato inválido. Atualize o Apps Script."); return; }
+
+  // Usa formato array para evitar problema de chaves duplicadas (ex: múltiplas colunas "Turno")
+  // rows vem como [{headers:[...], rows:[[...],[...]]}]
+  const headers = rows.headers;
+  const rawRows = rows.rows;
+
+  // Índices fixos baseados no header
+  const iData    = headers.indexOf("Data");
+  const iWeekday = headers.findIndex(h => String(h).includes("Semana"));
+  const iMonth   = headers.findIndex(h => String(h) === "Mês" || String(h) === "Mes");
+  const iYear    = headers.findIndex(h => String(h) === "Ano");
+  const iHol     = headers.findIndex(h => String(h).toUpperCase().includes("FERIADO"));
+
+  // Detecta pessoas: colunas após FERIADO, pulando as de "Turno"
+  const orderedPeople = [];
+  for (let i = iHol + 1; i < headers.length; i++) {
+    const name = String(headers[i] || "").trim();
+    if (!name || name.toUpperCase() === "TURNO") continue;
+    // Próxima coluna deve ser Turno
+    const turnoColIdx = i + 1;
+    const turnoVal = rawRows[0] ? String(rawRows[0][turnoColIdx] || "T1").trim() : "T1";
+    orderedPeople.push({
+      name,
+      colIdx: i,
+      turnoColIdx,
+      turno: turnoVal,
+      cls: CHIP_PALETTES[orderedPeople.length % CHIP_PALETTES.length]
+    });
+    i++; // pula a coluna Turno
+  }
+
+  people = orderedPeople;
+
+  function parseDate(val) {
+    if (!val) return "";
+    const s = String(val).trim();
+    if (s.match(/^\d{4}-\d{2}-\d{2}/)) {
+      const d = new Date(s);
+      return String(d.getUTCDate()).padStart(2,"0") + "/" +
+             String(d.getUTCMonth()+1).padStart(2,"0") + "/" +
+             d.getUTCFullYear();
+    }
+    return s;
+  }
+
+  const MONTHS_PT = {
+    1:"Janeiro",2:"Fevereiro",3:"Março",4:"Abril",5:"Maio",6:"Junho",
+    7:"Julho",8:"Agosto",9:"Setembro",10:"Outubro",11:"Novembro",12:"Dezembro"
+  };
+
+  allData = rawRows.map(r => {
+    const dateStr = parseDate(r[iData]);
+    let month   = String(r[iMonth]   || "").trim();
+    let year    = String(r[iYear]    || "").trim();
+    let weekday = String(r[iWeekday] || "").trim();
+
+    if (dateStr && (!month || month.match(/^\d/))) {
+      const parts = dateStr.split("/");
+      if (parts.length === 3) {
+        month = MONTHS_PT[parseInt(parts[1])] || month;
+        year  = parts[2];
+      }
+    }
+
+    return {
+      date:    dateStr,
+      weekday: weekday,
+      month:   month,
+      year:    year,
+      holiday: String(r[iHol] || "").trim(),
+      statuses: orderedPeople.map(p => String(r[p.colIdx] || "").trim())
+    };
+  }).filter(r => r.date && r.date.match(/\d{2}\/\d{2}\/\d{4}/));
+
+  // Monta lista de meses
+  const seen = new Set();
+  monthsList = [];
+  allData.forEach(r => {
+    const k = r.month + "|" + r.year;
+    if (!seen.has(k)) { seen.add(k); monthsList.push({month: r.month, year: r.year}); }
+  });
+
+  // Posiciona no mês atual se disponível
+  const today = todayStr();
+  const todayRow = allData.find(r => r.date === today);
+  if (todayRow) {
+    const idx = monthsList.findIndex(m => m.month === todayRow.month && m.year === todayRow.year);
+    if (idx >= 0) curIdx = idx;
+  }
+
+  document.getElementById("page-sub").textContent =
+    people.length + " pessoas · " + monthsList.length + " meses";
+
+  buildMonthSelect();
+  populatePeopleSelect();
+  render();
+}
+
+// ── Filtros ───────────────────────────────────────────────────────────────────
+function applyFilters() {
+  filtTurno = document.getElementById("f-turno").value;
+  populatePeopleSelect();
+  filtNome  = document.getElementById("f-nome").value;
+  render();
+}
+
+function visiblePeople() {
+  return people.filter(p => {
+    if (filtTurno && p.turno !== filtTurno) return false;
+    if (filtNome  && p.name !== filtNome) return false;
+    return true;
+  });
+}
+
+function buildMonthSelect() {
+  const sel = document.getElementById("f-mes");
+  sel.innerHTML = "";
+  monthsList.forEach((m, i) => {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = m.month + " " + m.year;
+    sel.appendChild(opt);
+  });
+  sel.value = curIdx;
+}
+
+function populatePeopleSelect() {
+  const turno = document.getElementById("f-turno").value;
+  const sel = document.getElementById("f-nome");
+  const current = sel.value;
+  sel.innerHTML = "<option value=''>Todas as pessoas</option>";
+  people
+    .filter(p => !turno || p.turno === turno)
+    .forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p.name;
+      opt.textContent = p.name + " (" + p.turno + ")";
+      sel.appendChild(opt);
+    });
+  // Mantém seleção se ainda válida
+  if ([...sel.options].some(o => o.value === current)) sel.value = current;
+  else sel.value = "";
+}
+
+function goToMonth()  { curIdx = parseInt(document.getElementById("f-mes").value); render(); }
+function prevMonth()  { if (curIdx > 0) { curIdx--; render(); } }
+function nextMonth()  { if (curIdx < monthsList.length - 1) { curIdx++; render(); } }
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  if (!monthsList.length) return;
+
+  const mk = monthsList[curIdx];
+  document.getElementById("cal-month").textContent = mk.month + " " + mk.year;
+  document.getElementById("f-mes").value = curIdx;
+
+  const mData = allData.filter(r => r.month === mk.month && r.year === mk.year);
+  if (!mData.length) { document.getElementById("cal-grid").innerHTML = ""; return; }
+
+  const vis = visiblePeople();
+  const visIdx = new Set(vis.map(p => people.indexOf(p)));
+  const today = todayStr();
+
+  const firstDOW = DOW.indexOf(mData[0].weekday);
+  const grid = document.getElementById("cal-grid");
+  grid.innerHTML = "";
+
+  // Células vazias antes
+  for (let i = 0; i < firstDOW; i++) {
+    const e = document.createElement("div");
+    e.className = "dcell other";
+    grid.appendChild(e);
+  }
+
+  mData.forEach(r => {
+    const isWknd  = WKND.has(r.weekday);
+    const isHol   = r.holiday !== "";
+    const isToday = r.date === today;
+
+    const cell = document.createElement("div");
+    cell.className = "dcell" +
+      (isWknd ? " wknd" : "") +
+      (isHol  ? " feriado" : "") +
+      (isToday ? " today-cell" : "");
+
+    if (isHol) {
+      const ht = document.createElement("span");
+      ht.className = "hol-tag";
+      ht.textContent = r.holiday;
+      ht.title = r.holiday;
+      cell.appendChild(ht);
+    }
+
+    const dn = document.createElement("span");
+    dn.className = "dnum";
+    dn.textContent = parseInt(r.date.split("/")[0]);
+    cell.appendChild(dn);
+
+    let shown = 0;
+    vis.forEach((p, vi) => {
+      const pi = people.indexOf(p);
+      const status = r.statuses[pi] || "";
+      if (status === "Trabalhando") {
+        const chip = document.createElement("div");
+        chip.className = "chip " + p.cls;
+        chip.innerHTML =
+          `<span class="chip-dot"></span>` +
+          `<span class="chip-name">${p.name.split(" ")[0]}</span>` +
+          `<span class="chip-turno">${p.turno}</span>`;
+        cell.appendChild(chip);
+        shown++;
+      }
+    });
+
+    if (shown === 0 && vis.length > 0) {
+      const nd = document.createElement("div");
+      nd.className = "no-data";
+      nd.textContent = "— folga";
+      cell.appendChild(nd);
+    }
+
+    grid.appendChild(cell);
+  });
+
+  // Células vazias depois
+  const trailing = (firstDOW + mData.length) % 7;
+  if (trailing > 0) {
+    for (let i = trailing; i < 7; i++) {
+      const e = document.createElement("div");
+      e.className = "dcell other";
+      grid.appendChild(e);
+    }
+  }
+
+  // Stats
+  const stats = document.getElementById("stats-row");
+  stats.innerHTML = "";
+  vis.forEach(p => {
+    const pi = people.indexOf(p);
+    const worked = mData.filter(r => (r.statuses[pi] || "") === "Trabalhando").length;
+    const total  = mData.length;
+    const card = document.createElement("div");
+    card.className = "stat-card";
+    card.innerHTML =
+      `<div class="stat-name">${p.name.split(" ")[0]} <span class="stat-turno">${p.turno}</span></div>` +
+      `<div class="stat-val">${worked}</div>` +
+      `<div class="stat-sub">${total - worked} folgas</div>`;
+    stats.appendChild(card);
+  });
+}
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+function showLoading(v) { document.getElementById("loading").classList.toggle("hidden", !v); }
+function showError(msg) { const b = document.getElementById("error-banner"); b.textContent = msg; b.classList.add("show"); }
+function hideError()    { document.getElementById("error-banner").classList.remove("show"); }
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
